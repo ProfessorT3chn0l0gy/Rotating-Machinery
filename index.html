@@ -1,0 +1,105 @@
+<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Isolation Transformer Interactive Lab</title><style>
+:root{--bg:#05090d;--card:#0c1720;--ink:#111820;--paper:#eee9db;--red:#e83838;--blue:#168dcc;--gold:#ffd24d;--mut:#9fb3c1}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at top,#142c3c,#05090d 60%);color:#eef8ff;font-family:system-ui,Segoe UI,Arial,sans-serif}header{text-align:center;padding:16px 8px 7px}h1{margin:0;font-size:clamp(24px,4vw,40px)}header p{margin:5px;color:var(--mut)}
+.wrap{max-width:1400px;margin:auto;padding:10px;display:grid;grid-template-columns:1.15fr .85fr;gap:14px}.card{background:var(--card);border:1px solid #29404f;border-radius:18px;padding:13px}.board{height:650px;background:var(--paper);border:7px solid #59646b;border-radius:10px;position:relative;overflow:hidden;color:var(--ink)}
+.title{text-align:center;font-weight:900;letter-spacing:.07em;padding:9px}.badge{position:absolute;top:49px;left:50%;transform:translateX(-50%);background:#101920;color:#fff;padding:8px 17px;border-radius:9px;font-weight:900}
+svg{position:absolute;inset:0;width:100%;height:100%}.wire{fill:none;stroke:var(--ink);stroke-width:5;stroke-linecap:round;stroke-linejoin:round}.coil{fill:none;stroke:var(--ink);stroke-width:5}.sec{stroke:var(--blue)}.core{stroke:#4e5559;stroke-width:6}.hot{stroke:var(--red);stroke-width:7}.stud{fill:#e9edef;stroke:#454b4f;stroke-width:4}.slot{stroke:#666;stroke-width:5}.lbl{font:700 24px system-ui;fill:#111}.small{font:700 14px system-ui;fill:#8c1111}
+.source{position:absolute;left:2%;top:230px;width:125px;background:#101920;color:#fff;border-radius:12px;padding:10px;text-align:center;z-index:10}.source b{display:block;font-size:27px}.source input{width:100%;accent-color:var(--red)}
+.out{position:absolute;right:2%;top:275px;background:#071018;color:#fff;border:3px solid var(--blue);border-radius:12px;padding:12px;text-align:center;z-index:10}.out b{display:block;font-size:29px;color:#8ed8ff}
+.link{position:absolute;height:38px;background:linear-gradient(#f0f3f4,#939da2 47%,#e0e5e7);border:2px solid #61696d;border-radius:19px;transform-origin:19px 19px;z-index:8;box-shadow:0 3px 5px #0006}.link:before,.link:after{content:"";position:absolute;top:5px;width:24px;height:24px;border-radius:50%;background:#cfd4d6;border:3px solid #666}.link:before{left:4px}.link:after{right:4px}
+.seriesBus{position:absolute;width:46px;background:linear-gradient(90deg,#aeb6ba,#f4f6f7 32%,#8e989d 70%,#dce1e3);border:3px solid #596166;border-radius:20px;z-index:20;box-shadow:0 4px 7px #0007}
+.seriesBus .bolt{position:absolute;left:7px;width:26px;height:26px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#f8fafb,#aeb5b9 48%,#62696d 70%);border:3px solid #50575b;box-shadow:inset 0 0 0 3px #dce0e2}
+.seriesBus .bolt:after{content:"";position:absolute;left:5px;top:9px;width:10px;height:3px;background:#62686b;border-radius:2px}
+.seriesTag{position:absolute;font-weight:1000;font-size:13px;color:#111;background:#ffd24ddd;border:1px solid #8b741f;border-radius:6px;padding:3px 6px;z-index:21;white-space:nowrap}
+.parallelBus{position:absolute;width:46px;background:linear-gradient(90deg,#aeb6ba,#f4f6f7 32%,#8e989d 70%,#dce1e3);border:3px solid #596166;border-radius:20px;z-index:20;box-shadow:0 4px 7px #0007}
+.parallelBus .bolt{position:absolute;left:7px;width:26px;height:26px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#f8fafb,#aeb5b9 48%,#62696d 70%);border:3px solid #50575b;box-shadow:inset 0 0 0 3px #dce0e2}
+.parallelBus .bolt:after{content:"";position:absolute;left:5px;top:9px;width:10px;height:3px;background:#62686b;border-radius:2px}.ratio{position:absolute;bottom:18px;left:50%;transform:translateX(-50%);background:#071018;color:#fff;border:2px solid var(--gold);border-radius:11px;padding:9px 16px;text-align:center;font-weight:900}
+.buttons{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.phasePanel{margin-top:10px;padding:11px;background:#101d26;border:1px solid #304958;border-radius:12px}
+.phasePanel h3{margin:0 0 8px;text-align:center;font-size:15px;letter-spacing:.05em}
+.phaseButtons{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.phaseButtons button{font-size:15px;padding:11px}
+.phaseIndicator{text-align:center;margin-top:8px;padding:7px;border-radius:8px;background:#050a0e;font-weight:1000;color:#45dd86}
+button{padding:15px;border-radius:12px;border:2px solid #385263;background:#172832;color:#fff;font-weight:900;font-size:18px;cursor:pointer}button.active{background:#68401f;border-color:var(--gold)}.meters{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin:10px 0}.meter{text-align:center;background:#050a0e;border-radius:11px;padding:11px}.meter small{display:block;color:var(--mut)}.meter b{font-size:24px}.formula,.ex{background:#071018;border-radius:11px;padding:11px;margin:9px 0}.formula{text-align:center;font-size:18px}.ex{background:#10212b;line-height:1.45}canvas{width:100%;height:245px;background:#020608;border-radius:10px;display:block}.note{font-size:12px;color:var(--mut);margin-top:7px;line-height:1.4}@media(max-width:900px){.wrap{grid-template-columns:1fr}.board{height:620px}}
+</style></head><body><header><h1>Single-Phase Isolation Transformer Lab</h1><p>Textbook-Style H1–H4 Primary • X1–X2 Secondary • Physical Metal Links</p></header><div class="wrap"><section class="card"><div class="board" id="board"><div class="title">ELECTRICAL TRANSFORMER — PRIMARY CONNECTIONS</div><div class="badge" id="mode">SERIES PRIMARY — 4:1</div>
+<svg viewBox="0 0 760 650" preserveAspectRatio="none">
+<!-- fixed source conductors: ALWAYS H1 and H4 -->
+<path class="hot" d="M125 165 H245"/><path class="hot" d="M125 475 H245"/>
+<text class="small" x="135" y="150">L1 → H1 (FIXED)</text><text class="small" x="135" y="500">L2 → H4 (FIXED)</text>
+<!-- primary lead/winding: exact continuous connections -->
+<path class="wire" d="M245 165 H350"/>
+<path class="coil" d="M350 165 C405 165 405 210 350 210 C405 210 405 255 350 255 C405 255 405 300 350 300"/>
+<!-- H2 and H3 leads intentionally cross, matching the reference transformer diagram -->
+<path class="wire" d="M350 300 C315 300 292 340 245 340"/>
+<path class="wire" d="M245 300 C292 300 315 340 350 340"/>
+<path class="coil" d="M350 340 C405 340 405 385 350 385 C405 385 405 430 350 430 C405 430 405 475 350 475"/>
+<path class="wire" d="M350 475 H245"/>
+<!-- core -->
+<line class="core" x1="430" y1="140" x2="430" y2="500"/><line class="core" x1="446" y1="140" x2="446" y2="500"/>
+<!-- Transformer polarity / phasing dots -->
+<circle id="primaryDot" cx="410" cy="166" r="9" fill="#111"/>
+<circle id="secondaryDot" cx="466" cy="206" r="9" fill="#111"/>
+<text x="385" y="130" style="font:700 13px system-ui;fill:#333">POLARITY DOTS</text>
+<!-- secondary continuous -->
+<path class="wire sec" d="M540 205 H610"/>
+<path class="coil sec" d="M540 205 C485 205 485 250 540 250 C485 250 485 295 540 295 C485 295 485 340 540 340 C485 340 485 385 540 385 C485 385 485 430 540 430"/>
+<path class="wire sec" d="M540 430 H610"/>
+<!-- studs -->
+<g><circle class="stud" cx="245" cy="165" r="20"/><line class="slot" x1="236" y1="165" x2="254" y2="165"/><circle class="stud" cx="245" cy="300" r="20"/><line class="slot" x1="236" y1="300" x2="254" y2="300"/><circle class="stud" cx="245" cy="340" r="20"/><line class="slot" x1="236" y1="340" x2="254" y2="340"/><circle class="stud" cx="245" cy="475" r="20"/><line class="slot" x1="236" y1="475" x2="254" y2="475"/><circle class="stud" cx="610" cy="205" r="20"/><circle class="stud" cx="610" cy="430" r="20"/></g>
+<text class="lbl" x="190" y="172">H1</text><text class="lbl" x="190" y="307">H3</text><text class="lbl" x="190" y="347">H2</text><text class="lbl" x="190" y="482">H4</text><text class="lbl" x="625" y="212">X1</text><text class="lbl" x="625" y="437">X2</text>
+</svg>
+<div class="source">AC SOURCE<b id="sv">120 V</b><input id="vin" type="range" min="0" max="240" value="120" step="1"><small>Always H1–H4</small></div><div class="out">X1–X2<b id="ov">30 V</b>SECONDARY</div><div id="links"></div><div class="ratio"><span id="ratio">Np:Ns = 4:1</span><br><small id="why">Series: 2 + 2 primary turns</small></div></div></section>
+<section class="card"><div class="buttons"><button id="bs" class="active">SERIES PRIMARY</button><button id="bp">PARALLEL PRIMARY</button></div>
+<div class="phasePanel"><h3>SECONDARY POLARITY / PHASE RELATIONSHIP</h3><div class="phaseButtons"><button id="b0" class="active">IN PHASE — 0°</button><button id="b180">OUT OF PHASE — 180°</button></div><div class="phaseIndicator" id="phaseIndicator">0° — DOT AT X1 END — IN PHASE</div></div>
+<div class="meters"><div class="meter"><small>H1–H4 SOURCE</small><b id="mv">120 V</b></div><div class="meter"><small>RATIO Np:Ns</small><b id="mr">4:1</b></div><div class="meter"><small>X1–X2</small><b id="mo">30 V</b></div></div><div class="formula">V<sub>S</sub> = V<sub>P</sub> × N<sub>S</sub>/N<sub>P</sub></div><div class="ex" id="ex"></div><canvas id="scope" width="760" height="280"></canvas><div class="note"><b>Instructional model:</b> H1 and H4 remain the source terminals in both modes. Only the physical links change. Identical primary sections are assumed correctly phased. The display uses the requested effective ratios: series 4:1 and parallel 2:1.</div></section></div>
+<script>
+let type='series',V=120,phase=0,phaseRelation=0;const vin=document.getElementById('vin'),cv=document.getElementById('scope'),ctx=cv.getContext('2d'),links=document.getElementById('links');
+function R(){return type==='series'?4:2}function Vo(){return V/R()}
+function mk(x1,y1,x2,y2){let d=Math.hypot(x2-x1,y2-y1),a=Math.atan2(y2-y1,x2-x1)*180/Math.PI,e=document.createElement('div');e.className='link';e.style.left=(x1-19)+'px';e.style.top=(y1-19)+'px';e.style.width=d+'px';e.style.transform='rotate('+a+'deg)';links.appendChild(e)}
+function straps(){links.innerHTML='';let b=document.getElementById('board'),sx=b.clientWidth/760,sy=b.clientHeight/650;
+if(type==='series'){
+  /* One continuous metal bus bar physically covers BOTH crossed center terminal studs:
+     upper center stud = H3, lower center stud = H2. */
+  let bus=document.createElement('div');bus.className='seriesBus';
+  let top=274*sy, bottom=366*sy;
+  bus.style.left=(222*sx)+'px';bus.style.top=top+'px';bus.style.height=(bottom-top)+'px';
+  let b1=document.createElement('div');b1.className='bolt';b1.style.top=(13*sy)+'px';
+  let b2=document.createElement('div');b2.className='bolt';b2.style.bottom=(13*sy)+'px';
+  bus.appendChild(b1);bus.appendChild(b2);links.appendChild(bus);
+  let tag=document.createElement('div');tag.className='seriesTag';tag.textContent='H3 ↕ H2  SERIES LINK';
+  tag.style.left=(275*sx)+'px';tag.style.top=(307*sy)+'px';links.appendChild(tag);
+}else{
+  /* Two continuous physical bus bars. Each one visibly covers both terminal studs:
+     upper bus = H1-H3; lower bus = H2-H4. */
+  function parallelBus(yTop,yBottom){
+    let bus=document.createElement('div');bus.className='parallelBus';
+    let top=(yTop-26)*sy, bottom=(yBottom+26)*sy;
+    bus.style.left=(222*sx)+'px';bus.style.top=top+'px';bus.style.height=(bottom-top)+'px';
+    let b1=document.createElement('div');b1.className='bolt';
+    b1.style.top=((yTop*sy)-top-13)+'px';
+    let b2=document.createElement('div');b2.className='bolt';
+    b2.style.top=((yBottom*sy)-top-13)+'px';
+    bus.appendChild(b1);bus.appendChild(b2);links.appendChild(bus);
+  }
+  parallelBus(165,300); /* H1-H3 */
+  parallelBus(340,475); /* H2-H4 */
+}}
+function updatePhase(){
+ let sd=document.getElementById('secondaryDot'),b0=document.getElementById('b0'),b180=document.getElementById('b180'),pi=document.getElementById('phaseIndicator');
+ if(phaseRelation===0){
+   sd.setAttribute('cy','206'); sd.setAttribute('cx','466');
+   b0.classList.add('active');b180.classList.remove('active');
+   pi.textContent='0° — SECONDARY DOT AT X1 END — IN PHASE';pi.style.color='#45dd86';
+ }else{
+   sd.setAttribute('cy','430'); sd.setAttribute('cx','466');
+   b180.classList.add('active');b0.classList.remove('active');
+   pi.textContent='180° — SECONDARY DOT AT X2 END — OUT OF PHASE';pi.style.color='#ffd24d';
+ }
+}
+function update(){V=+vin.value;let o=Math.round(Vo()*10)/10;sv.textContent=mv.textContent=V+' V';ov.textContent=mo.textContent=o+' V';mr.textContent=R()+':1';mode.textContent=(type==='series'?'SERIES':'PARALLEL')+' PRIMARY — '+R()+':1';ratio.textContent='Effective Np:Ns = '+R()+':1';why.textContent=type==='series'?'Series: primary turns add, 2 + 2 = 4':'Parallel: effective primary turns = 2';bs.classList.toggle('active',type==='series');bp.classList.toggle('active',type==='parallel');ex.innerHTML=type==='series'?'<b>SERIES:</b> H1 and H4 remain connected to the AC source. The metal link joins <b>H2–H3</b>, placing the two primary windings in series. Their effective turns add, producing <b>4:1</b>. At 120 VAC, X1–X2 = <b>30 VAC</b>.':'<b>PARALLEL:</b> H1 and H4 still remain the source connection points. The metal links directly join <b>H1–H3</b> and <b>H2–H4</b>, reconfiguring the identical primary sections in parallel. Effective primary turns are halved relative to series, producing <b>2:1</b>. At 120 VAC, X1–X2 = <b>60 VAC</b>.';straps()}
+function draw(){let w=cv.width,h=cv.height;ctx.clearRect(0,0,w,h);ctx.strokeStyle='#17303e';ctx.lineWidth=1;for(let x=0;x<w;x+=50){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,h);ctx.stroke()}for(let y=30;y<h;y+=40){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(w,y);ctx.stroke()}phase+=.02;let mx=Math.max(1,V,Vo()),s=90/mx;function wave(a,col,flip){ctx.beginPath();for(let x=0;x<w;x++){let ph=flip?Math.PI:0;let y=h/2-Math.sin(x/w*Math.PI*4+phase+ph)*a*s;x?ctx.lineTo(x,y):ctx.moveTo(x,y)}ctx.strokeStyle=col;ctx.lineWidth=3;ctx.stroke()}wave(V,'#e83838',false);wave(Vo(),'#168dcc',phaseRelation===180);ctx.font='bold 14px Arial';ctx.fillStyle='#e83838';ctx.fillText('PRIMARY '+V+' VAC',15,21);ctx.fillStyle='#45b8ff';ctx.fillText('SECONDARY '+(Math.round(Vo()*10)/10)+' VAC',170,21);ctx.fillStyle='#9fb3c1';ctx.font='12px Arial';ctx.fillText('Idealized primary and secondary voltage waveforms — phase relationship: '+phaseRelation+'°',15,h-12);requestAnimationFrame(draw)}
+vin.oninput=update;bs.onclick=()=>{type='series';update()};bp.onclick=()=>{type='parallel';update()};
+b0.onclick=()=>{phaseRelation=0;updatePhase()};b180.onclick=()=>{phaseRelation=180;updatePhase()};
+window.onresize=straps;update();updatePhase();draw();
+</script></body></html>
